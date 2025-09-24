@@ -1,0 +1,28 @@
+#!/bin/bash -l
+#SBATCH --account=pawsey1157
+#SBATCH --partition=work
+#SBATCH --ntasks=1
+#SBATCH --ntasks-per-node=1
+#SBATCH --cpus-per-task=8
+#SBATCH --mem=4GB
+#SBATCH --time=24:00:00
+#SBATCH --job-name=nf-lncrna
+#SBATCH --export=NONE
+
+# change time to --time=1-00:00:00
+
+# Load required modules
+module load nextflow/24.10.0
+
+# Slurm script must unset the Slurm variable SBATCH_EXPORT, otherwise Singularity will not be available in the child jobs
+module load singularity/4.1.0-slurm
+unset SBATCH_EXPORT
+
+
+# This means nextflow will run the filepath provided after "sbatch nf.slm NAME_OF_FILE"
+nextflow run ${1} -profile setonix \
+                  -resume \
+                  -with-report ${SLURM_JOB_ID}report.html \
+                  -with-trace ${SLURM_JOB_ID}trace.txt \
+                  -with-timeline ${SLURM_JOB_ID}timeline.html \
+                  -with-dag ${SLURM_JOB_ID}flowchart.png 
