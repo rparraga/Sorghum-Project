@@ -1,6 +1,6 @@
 #! /usr/bin/env nextflow
-params.sra_csv = '/software/projects/pawsey1157/rparraga/setonix/GitHub/Sorghum-Project/Sorghum_Cleaned.csv'
-params.prjDir = '/scratch/pawsey1157/rparraga/sorghum/nxf_work/data_stages' 
+params.sra_csv = "/software/projects/pawsey1157/${USER}/setonix/GitHub/Sorghum-Project/Sorghum_Cleaned.csv"
+params.prjDir = "/scratch/pawsey1157/${USER}/sorghum/nxf_work/data_stages"
 params.threads = 16
 
 Channel
