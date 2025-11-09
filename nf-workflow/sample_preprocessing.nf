@@ -8,37 +8,24 @@
  * params.query="sets a pipeline param that can be set using --query from the command line when running this script"
  */
 
-params.sra_csv = '/software/projects/pawsey1157/modanilevicz/setonix/GitHub/Sorghum-Project/search/sorghum_runs_projects_merged_filtered.csv'
-params.prjDir = '/scratch/pawsey1157/modanilevicz/sorghum/nxf_work/data_stages' //path to export intermediate outputs
-params.genome_fasta = '/scratch/pawsey1157/modanilevicz/sorghum/reference/' //path to genome fasta
-params.genome_gtf = '/scratch/pawsey1157/modanilevicz/sorghum/reference/' //path to genome annotation
+params.sra_csv= "/software/projects/pawsey1157/${USER}/setonix/GitHub/Sorghum-Project/search/sorghum_runs_projects_merged_filtered.csv"
+params.prjDir= "/scratch/pawsey1157/${USER}/sorghum/nxf_work/data_stages"
+params.genome_fasta = "/scratch/pawsey1157/${USER}/sorghum/reference/GCF_000003195.3_Sorghum_bicolor_NCBIv3_genomic.fna"
+params.genome_gtf = "/scratch/pawsey1157/${USER}/sorghum/reference/genomic.gff"
 
 Channel
     .fromPath(params.sra_csv)
-    .splitCsv(header : true) // Filter the stream to keep only rows with valid SRR or ERR IDs
-    .collect() 
-    .flatMap { rows ->
-	def total_lines = rows.size()
-	def valid_rows = rows.findAll { row ->
-            def run_id = row.run_accession?.trim()
-            run_id && (run_id.startsWith("SRR") || run_id.startsWith("ERR"))
-	}	
-	if (valid_rows.size() != total_lines) {
-            error "Input file is invalid. Expected ${total_lines} SRR/ERR IDs, but found only ${valid_rows.size()} valid entries."
-        }
-	return valid_rows
-     } 
-    // Map the valid rows to the desired tuple structure for downstream processes
+    .splitCsv(header : true) 
     .map { row ->
         def sra_id = row.run_accession
-        def is_paired = row.library_layout.toLowerCase() == 'paired'
+        def is_paired = row['Library Layout'].toLowerCase() == 'paired'
         tuple(sra_id, is_paired)
     }
     .set { sra_ids }
 
 Channel
     .fromPath(params.sra_csv)
-    .splitCsv(header : true) // Filter the stream to keep only rows with valid SRR or ERR IDs
+    .splitCsv(header : true)
     .map {row ->
 	def bioproject = row.Bioprojects
 	}
