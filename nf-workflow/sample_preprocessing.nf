@@ -10,8 +10,8 @@
 
 params.sra_csv= "/software/projects/pawsey1157/${USER}/setonix/GitHub/Sorghum-Project/search/sorghum_runs_projects_merged_filtered.csv"
 params.prjDir= "/scratch/pawsey1157/${USER}/sorghum/nxf_work/data_stages"
-params.genome_fasta = "/scratch/pawsey1157/${USER}/sorghum/reference/GCF_000003195.3_Sorghum_bicolor_NCBIv3_genomic.fna"
-params.genome_gtf = "/scratch/pawsey1157/${USER}/sorghum/reference/genomic.gff"
+params.genome_fasta = "/scratch/pawsey1157/modanilevicz/sorghum/reference/GCF_000003195.3_Sorghum_bicolor_NCBIv3_genomic.fna"
+params.genome_gtf = "/scratch/pawsey1157/modanilevicz/sorghum/reference/genomic.gff"
 
 Channel
     .fromPath(params.sra_csv)
