@@ -10,8 +10,8 @@
 
 params.sra_csv= "/software/projects/pawsey1157/${USER}/setonix/GitHub/Sorghum-Project/search/sorghum_runs_projects_merged_filtered.csv"
 params.prjDir= "/scratch/pawsey1157/${USER}/sorghum/nxf_work/data_stages"
-params.genome_fasta = "/scratch/pawsey1157/modanilevicz/sorghum/reference/GCF_000003195.3_Sorghum_bicolor_NCBIv3_genomic.fna"
-params.genome_gtf = "/scratch/pawsey1157/modanilevicz/sorghum/reference/genomic.gff"
+params.genome_fasta = "/scratch/pawsey1157/${USER}/sorghum/reference/Sbicolor_730_v5.0.fa"
+params.genome_gtf = "/scratch/pawsey1157/${USER}/sorghum/reference/Sbicolor_730_v5.1.modified.gff3"
 
 Channel
     .fromPath(params.sra_csv)
@@ -84,7 +84,7 @@ process downloadandConvertSRA {
 
     script:
     def dump_cmd = is_paired ?
-        "fasterq-dump $sra_id --split-files --outdir . --threads $params.threads" :
+        "fasterq-dump $sra_id --split-3 --outdir . --threads $params.threads" :
         "fasterq-dump $sra_id --outdir . --threads $params.threads"
      
     """
@@ -100,7 +100,8 @@ process downloadandConvertSRA {
 	echo "true" > actual_is_paired.txt
     elif [ "\$NUM_FASTQ" -eq 1 ]; then
         echo "false" > actual_is_paired.txt
-        mv *.fastq ${sra_id}_1.fastq
+        if [ ! -f ${sra_id}_1.fastq ]; then
+		mv *.fastq ${sra_id}_1.fastq
     else
         echo "Error: Expected 1 or 2 FASTQ files for $sra_id, but found \$NUM_FASTQ."
         exit 1

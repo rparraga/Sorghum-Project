@@ -1,0 +1,12 @@
+#!/bin/bash -l
+
+#SBATCH --nodes=1
+#SBATCH --time=24:00:00
+#SBATCH --cpus-per-task=32
+#SBATCH --mem=110GB
+#SBATCH --account=pawsey1157
+#SBATCH --job-name=fix_sra
+#SBATCH --partition=work
+#SBATCH --export=NONE
+
+fasterq-dump SRR5183088  --outdir /scratch/pawsey1157/modanilevicz/sorghum/nxf_work/data_stages/fastq/ --threads 32

@@ -24,7 +24,7 @@ echo "- SLURM_ARRAY_TASK_ID=${SLURM_ARRAY_TASK_ID}"
  
 #--- 
 ## Projects from file
-SOURCE="/software/projects/pawsey1157/${USER}/setonix/GitHub/Sorghum-Project/search/sorghum_runs_projects_merged_filtered.csv"
+SOURCE="/software/projects/pawsey1157/${USER}/setonix/GitHub/Sorghum-Project/search/sorghum_runs_projects_merged_filtered_badsamples.csv"
 PROJECT_LIST=($(awk -F ',' '{gsub(/\r/, "", $2); print $2}' $SOURCE | sort -u | grep -v "Bioproject"))
 PROJECT_ID=${PROJECT_LIST[$SLURM_ARRAY_TASK_ID]}
 echo "My input project is ${PROJECT_ID}"
@@ -36,7 +36,7 @@ touch $PROJECT_FILE
 SAMPLE_LIST=($(grep ${PROJECT_ID} $SOURCE | awk -F ',' '{print $1}'))
 
 for sample in "${SAMPLE_LIST[@]}";
-do echo "/scratch/pawsey1157/${USER}/sorghum/nxf_work/data_stages/stringtie_1stPass/${sample}.gtf" >> $PROJECT_FILE";
+do echo "/scratch/pawsey1157/${USER}/sorghum/nxf_work/data_stages/stringtie_1stPass/${sample}.gtf" >> $PROJECT_FILE;
 done
 
 ## Set environment variables
@@ -46,7 +46,7 @@ IMAGE="/software/projects/pawsey1157/groupResources/sharedImages/stringtie_3.0.0
 module load singularity/4.1.0-slurm
 
 #---
-GENOME="/scratch/pawsey1157/rparraga/Sbicolor_730_v5.1.modified.gff3"
+GENOME="/scratch/pawsey1157/${USER}/sorghum/reference/Sbicolor_730_v5.1.modified.gff3"
 MERGED_GTF="${DIR}/stringtie_2Pass/${PROJECT_ID}.gtf"
 
 # PROJECT STRINGTIE MERGE
