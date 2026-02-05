@@ -2,7 +2,7 @@
 
 #SBATCH --account=pawsey1157
 #SBATCH --output=arraystringtie-%j.out   # output of each task
-#SBATCH --array=0-25           # match the number of input files
+#SBATCH --array=0-24           # match the number of input files
 #SBATCH --nodes=1               # each subtask uses 1 node
 #SBATCH --ntasks=1              # 1 subtask per file in the array-subtask
 #SBATCH --cpus-per-task=32      # cpus per subtask
@@ -24,7 +24,7 @@ echo "- SLURM_ARRAY_TASK_ID=${SLURM_ARRAY_TASK_ID}"
  
 #--- 
 ## Projects from file
-SOURCE="/software/projects/pawsey1157/${USER}/setonix/GitHub/Sorghum-Project/search/sorghum_runs_projects_merged_filtered_badsamples.csv"
+SOURCE="/software/projects/pawsey1157/${USER}/setonix/GitHub/Sorghum-Project/search/sorghum_runs_projects_merged_filtered_cleaned.csv"
 PROJECT_LIST=($(awk -F ',' '{gsub(/\r/, "", $2); print $2}' $SOURCE | sort -u | grep -v "Bioproject"))
 PROJECT_ID=${PROJECT_LIST[$SLURM_ARRAY_TASK_ID]}
 echo "My input project is ${PROJECT_ID}"

@@ -23,15 +23,16 @@ echo "- SLURM_ARRAY_TASK_ID=${SLURM_ARRAY_TASK_ID}"
  
 #--- 
 ## Sample list
-FILE_LIST=($(awk -F ',' '{gsub(/\r/, "", $4); print $4}' /software/projects/pawsey1157/modanilevicz/setonix/GitHub/sugarcane_lncRNA/search/sugarcane_runs_cleaned.csv | sort -u | grep -v "run_accession"))
+SOURCE="/software/projects/pawsey1157/modanilevicz/setonix/GitHub/Sorghum-Project/search/sorghum_runs_projects_merged_filtered_cleaned.csv"
+FILE_LIST=($(awk -F ',' '{gsub(/\r/, "", $1); print $1}' $SOURCE | sort -u | grep -v "run_accession"))
 FILE=${FILE_LIST[$SLURM_ARRAY_TASK_ID]}
 echo ${FILE}
 
 ## Find out the sample project
-PROJECT=$(grep $FILE /software/projects/pawsey1157/modanilevicz/setonix/GitHub/sugarcane_lncRNA/search/sugarcane_runs_cleaned.csv | awk -F ',' '{gsub(/\r/, "", $5); print $5}')
+PROJECT=$(grep $FILE $SOURCE | awk -F ',' '{gsub(/\r/, "", $2); print $2}')
 
 ## Set environment variables
-DIR="/scratch/pawsey1157/modanilevicz/sugarcane/nxf_work/data_stages"
+DIR="/scratch/pawsey1157/modanilevicz/sorghum/nxf_work/data_stages"
 IMAGE="/software/projects/pawsey1157/groupResources/sharedImages/stringtie_3.0.0--h29c0135_0.sif"
 
 module load singularity/4.1.0-slurm

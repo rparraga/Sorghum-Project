@@ -27,7 +27,7 @@ Channel
     .fromPath(params.sra_csv)
     .splitCsv(header : true)
     .map {row ->
-	def bioproject = row.Bioprojects
+	def bioproject = row.Bioproject
 	}
     .unique()
     .set { bioproject_list }
@@ -73,6 +73,9 @@ workflow {
  */
 
 process downloadandConvertSRA {
+    errorStrategy 'retry'
+    maxRetries 3
+    
     tag "$sra_id"
     publishDir "${params.prjDir}/fastq", mode: 'copy'
 
@@ -84,8 +87,8 @@ process downloadandConvertSRA {
 
     script:
     def dump_cmd = is_paired ?
-        "fasterq-dump $sra_id --split-3 --outdir . --threads $params.threads" :
-        "fasterq-dump $sra_id --outdir . --threads $params.threads"
+        "fasterq-dump $sra_id --split-3 --outdir . --threads $task.cpus --force" :
+        "fasterq-dump $sra_id --outdir . --threads $task.cpus --force"
      
     """
     set -euo pipefail
@@ -102,6 +105,7 @@ process downloadandConvertSRA {
         echo "false" > actual_is_paired.txt
         if [ ! -f ${sra_id}_1.fastq ]; then
 		mv *.fastq ${sra_id}_1.fastq
+	fi
     else
         echo "Error: Expected 1 or 2 FASTQ files for $sra_id, but found \$NUM_FASTQ."
         exit 1
