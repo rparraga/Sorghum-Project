@@ -1,12 +1,12 @@
 #!/bin/bash --login
-#SBATCH --account=pawsey1157
+#SBATCH --account=pawsey1157-gpu
 #SBATCH --output=arraystringtie-%j.out   # output of each task
 #SBATCH --array=0-259          # match the number of input files
 #SBATCH --nodes=1               # each subtask uses 1 node
 #SBATCH --ntasks=1              # 1 subtask per file in the array-subtask
-#SBATCH --cpus-per-task=32      # cpus per subtask
-#SBATCH --mem=64GB              # Needed memory per array-subtask 
-#SBATCH --time=4:00:00         # time per subtask
+#SBATCH --time=6:00:00         # time per subtask
+#SBATCH --partition=gpu
+#SBATCH --gres=gpu:3
 
 set -euo pipefail
 
@@ -23,16 +23,15 @@ echo "- SLURM_ARRAY_TASK_ID=${SLURM_ARRAY_TASK_ID}"
  
 #--- 
 ## Sample list
-SOURCE="/software/projects/pawsey1157/modanilevicz/setonix/GitHub/Sorghum-Project/search/sorghum_runs_projects_merged_filtered_cleaned.csv"
-FILE_LIST=($(awk -F ',' '{gsub(/\r/, "", $1); print $1}' $SOURCE | sort -u | grep -v "run_accession"))
+FILE_LIST=($(awk -F ',' '{gsub(/\r/, "", $4); print $4}' /software/projects/pawsey1157/modanilevicz/setonix/GitHub/sugarcane_lncRNA/search/sugarcane_runs_cleaned.csv | sort -u | grep -v "run_accession"))
 FILE=${FILE_LIST[$SLURM_ARRAY_TASK_ID]}
 echo ${FILE}
 
 ## Find out the sample project
-PROJECT=$(grep $FILE $SOURCE | awk -F ',' '{gsub(/\r/, "", $2); print $2}')
+PROJECT=$(grep $FILE /software/projects/pawsey1157/modanilevicz/setonix/GitHub/sugarcane_lncRNA/search/sugarcane_runs_cleaned.csv | awk -F ',' '{gsub(/\r/, "", $5); print $5}')
 
 ## Set environment variables
-DIR="/scratch/pawsey1157/modanilevicz/sorghum/nxf_work/data_stages"
+DIR="/scratch/pawsey1157/modanilevicz/sugarcane/nxf_work/data_stages"
 IMAGE="/software/projects/pawsey1157/groupResources/sharedImages/stringtie_3.0.0--h29c0135_0.sif"
 
 module load singularity/4.1.0-slurm
@@ -46,7 +45,7 @@ OUT_GTF="${DIR}/stringtie_3Pass/${FILE}/${FILE}.gtf"
 
 BAM="${DIR}/samtools/${FILE}.bam"
 
-srun -N 1 -n 1 -c 32 \
+srun -N 1 -n 1 -c 24 --gres=gpu:3 \
     singularity run $IMAGE \
     stringtie -e -B -p 32 \
     -G  "${REF_GTF}" \
