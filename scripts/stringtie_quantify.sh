@@ -1,12 +1,14 @@
 #!/bin/bash --login
-#SBATCH --account=pawsey1157-gpu
+
+#SBATCH --account=pawsey1157
 #SBATCH --output=arraystringtie-%j.out	# output of each task
 #SBATCH --array=0-433			# match the number of input files
 #SBATCH --nodes=1			# each subtask uses 1 node
 #SBATCH --ntasks=1			# 1 subtask per file in the array-subtask
 #SBATCH --time=6:00:00			# time per subtask
-#SBATCH --partition=gpu
-#SBATCH --gres=gpu:2
+#SBATCH --partition=work
+#SBATCH --cpus-per-task=24
+#SBATCH --mem=100GB
 
 set -euo pipefail
 
@@ -23,7 +25,7 @@ echo "- SLURM_ARRAY_TASK_ID=${SLURM_ARRAY_TASK_ID}"
  
 #--- 
 ## Sample list
-FILE_LIST=($(awk -F ',' '{gsub(/\r/, "", $1); print $1}' /software/projects/pawsey1157/modanilevicz/setonix/GitHub/Sorghum-Project/search/sorghum_aligned_projects.csv | sort -u | grep -v "run_accession))
+FILE_LIST=($(awk -F ',' '{gsub(/\r/, "", $1); print $1}' /software/projects/pawsey1157/modanilevicz/setonix/GitHub/Sorghum-Project/search/sorghum_aligned_projects.csv | sort -u | grep -v "run_accession"))
 FILE=${FILE_LIST[$SLURM_ARRAY_TASK_ID]}
 echo ${FILE}
 
@@ -45,9 +47,9 @@ OUT_GTF="${DIR}/stringtie_3Pass/${FILE}/${FILE}.gtf"
 
 BAM="${DIR}/samtools/${FILE}.bam"
 
-srun -N 1 -n 1 -c 24 --gres=gpu:3 \
+srun -N 1 -n 1 -c 24 \
     singularity run $IMAGE \
-    stringtie -e -B -p 32 \
+    stringtie -e -B -p 24 \
     -G  "${REF_GTF}" \
     -o  "${OUT_GTF}" \
     $BAM
