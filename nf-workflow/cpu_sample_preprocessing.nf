@@ -88,8 +88,8 @@ process downloadandConvertSRA {
 
     script:
     def dump_cmd = is_paired ?
-        "fasterq-dump $sra_id --split-3 --outdir . --threads 16 --force" :
-        "fasterq-dump $sra_id --outdir . --threads 16 --force"
+        "fasterq-dump $sra_id --split-3 --outdir . --threads $task.cpus --force" :
+        "fasterq-dump $sra_id --outdir . --threads $task.cpus --force"
      
     """
     set -euo pipefail
@@ -145,14 +145,14 @@ process fastpTrim {
               --detect_adapter_for_pe \
               --html ${sample_id}_fastp.html \
               --json ${sample_id}_fastp.json \
-              --thread 8
+              --thread $task.cpus
       
     else 
         fastp -i $R1 \
               -o $out_R1 \
               --html ${sample_id}_fastp.html \
               --json ${sample_id}_fastp.json \
-              --thread 8
+              --thread $task.cpus
     fi
     """
 }
@@ -171,7 +171,7 @@ process fastqc {
 
     script:
     """
-    fastqc $trimmed_reads --threads 16
+    fastqc $trimmed_reads --threads $task.cpus
     """
 }
 
@@ -219,11 +219,11 @@ process genomeLibrary{
     path genome_fasta
 
     output:
-    path "Sbicolor.*.h*"
+    path "Sofficixsponta.*.h*"
 
     script:
     """
-    hisat2-build -p 64 ${genome_fasta} Sbicolor
+    hisat2-build -p $task.cpus ${genome_fasta} Sofficixsponta
     """
 }
 
@@ -241,14 +241,14 @@ process align2genome {
     path("${sample_id}_align.log"), emit: log
     
     script:
-    def genome_basename = "Sbicolor"
+    def genome_basename = "Sofficixsponta"
     def R1 = trimmed_reads.find { it.name.contains('_1_trimmed.fastq') }
     def R2 = trimmed_reads.find { it.name.contains('_2_trimmed.fastq') }
     
     if (R2){
 	"""
 	echo "running $sample_id with paired command"
-    	hisat2 -p 64 \
+    	hisat2 -p $task.cpus \
 		--phred33 --no-unal \
            	-x ${genome_basename} \
            	-1 ${R1} -2 ${R2} \
@@ -258,7 +258,7 @@ process align2genome {
     }   else {
 	"""
 	echo "running $sample_id with single command"
-	    hisat2 -p 64 \
+	    hisat2 -p $task.cpus \
         	   -x ${genome_basename} \
            	   -U ${R1} \
           	   -S ${sample_id}.sam \
@@ -279,7 +279,7 @@ process samtools {
 
     script:	
     """
-    samtools sort -@ 32 \
+    samtools sort -@ $task.cpus \
 		  -o ${sample_id}.bam \
   		  $sam
     """
@@ -298,7 +298,7 @@ process stringtie {
 
     script:
     """
-    stringtie  -p 16 \
+    stringtie  -p $task.cpus \
                 -G ${params.genome_gtf} \
                 -o ${sample_id}.gtf \
                 -l $sample_id \
