@@ -24,7 +24,7 @@ echo "- SLURM_ARRAY_TASK_ID=${SLURM_ARRAY_TASK_ID}"
 #--- 
 ## Sample list
 #FILE_LIST=($(grep -vf /software/projects/pawsey1157/modanilevicz/setonix/GitHub/sugarcane_lncRNA/script/finsihed_samples.txt /software/projects/pawsey1157/modanilevicz/setonix/GitHub/sugarcane_lncRNA/search/sugarcane_runs_cleaned.csv | awk -F ',' '{gsub(/\r/, "", $4); print $4}' | sort -u | grep -v "run_accession" ))
-mapfile -t FILE_LIST < /scratch/pawsey1157/rparraga/sugarcane_lncRNA/script/sorghum_samples.ids
+FILE_LIST=($(sort -u /scratch/pawsey1157/rparraga/sorghum_lncRNA/script/sorghum_samples.ids))
 FILE=${FILE_LIST[$SLURM_ARRAY_TASK_ID]}
 echo ${FILE}
 
